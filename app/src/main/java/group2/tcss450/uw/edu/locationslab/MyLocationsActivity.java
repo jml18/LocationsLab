@@ -4,6 +4,8 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -24,6 +26,10 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 
 public class MyLocationsActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks,
@@ -47,6 +53,7 @@ public class MyLocationsActivity extends AppCompatActivity implements
     private LocationRequest mLocationRequest;
     private Location mCurrentLocation;
     private TextView mLocationTextView;
+
     @SuppressLint("RestrictedApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -194,8 +201,20 @@ public class MyLocationsActivity extends AppCompatActivity implements
     public void onLocationChanged(Location location) {
         mCurrentLocation = location;
         Log.d(TAG, mCurrentLocation.toString());
-        mLocationTextView.setText(mCurrentLocation.getLatitude() + " " +
-                mCurrentLocation.getLongitude());
+        Geocoder geocoder;
+        List<Address> addresses;
+        geocoder = new Geocoder(this, Locale.getDefault());
+        try {
+            addresses = geocoder.getFromLocation(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude(), 1);
+            String address = addresses.get(0).getAddressLine(0);
+            String city = addresses.get(0).getAddressLine(1);
+            String country = addresses.get(0).getAddressLine(2);
+            final String postalCode = addresses.get(0).getPostalCode();
+            mLocationTextView.setText(address + "," + city + "," + country + "," + postalCode + "," + mCurrentLocation.getLatitude() + "," + mCurrentLocation.getLongitude());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
 
     }
 
@@ -214,8 +233,6 @@ public class MyLocationsActivity extends AppCompatActivity implements
         Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " +
                 connectionResult.getErrorCode());
     }
-
-
 
 
     /**
