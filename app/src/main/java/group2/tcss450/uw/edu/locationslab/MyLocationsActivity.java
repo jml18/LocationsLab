@@ -214,8 +214,6 @@ public class MyLocationsActivity extends AppCompatActivity implements
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
     }
 
     @Override
